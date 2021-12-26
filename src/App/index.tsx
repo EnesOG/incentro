@@ -1,12 +1,17 @@
+import axios from "axios";
+import { useMutation } from "react-query";
 import CreateForm from "../forms/CreateForm";
-import { GlobalStyle } from "./styles/Global";
+import { Incentronaut } from "./types";
 
 const App = () => {
+	const create = useMutation((data: Incentronaut) =>
+		axios.post("http://mockbin.org/", data)
+	);
 	return (
-		<div>
-			<GlobalStyle />
-			<CreateForm />
-		</div>
+		<CreateForm
+			isMutating={create.isLoading}
+			onCreate={(data) => create.mutate(data)}
+		/>
 	);
 };
 

@@ -1,17 +1,35 @@
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { emailPattern, postalCodePattern } from "../App/constants/patterns";
+import useAddressValidatorHook from "../App/hooks/useAddressValidatorHook";
 import { Incentronaut } from "../App/types";
 import Form from "../components/Form/Form";
 import Textfield from "../components/Textfield/Textfield";
 
-const Create = () => {
+interface CreateProps {
+	onCreate: (data: Incentronaut) => void;
+	isMutating?: boolean;
+}
+
+const Create = ({ onCreate, isMutating = false }: CreateProps) => {
 	const {
 		register,
 		handleSubmit,
+		control,
+		setValue,
 		formState: { errors },
-	} = useForm<Incentronaut>();
+	} = useForm<Incentronaut>({ reValidateMode: "onChange", mode: "onChange" });
+	const { data, isLoading } = useAddressValidatorHook({ control, errors });
 
-	const onSubmit: SubmitHandler<Incentronaut> = (data) => console.log(data);
+	const onSubmit: SubmitHandler<Incentronaut> = (data) => onCreate(data);
+
+	useEffect(() => {
+		const properties = data?.feature?.properties;
+		const street = properties?.street;
+		const city = properties?.city;
+		city && setValue("city", city);
+		street && setValue("street_name", street);
+	}, [data?.feature, setValue]);
 
 	return (
 		<Form onSubmit={handleSubmit(onSubmit)}>
@@ -44,6 +62,7 @@ const Create = () => {
 			/>
 
 			<Textfield
+				isLoading={isLoading}
 				placeholder="Postcode"
 				error={errors?.postal_code?.message}
 				{...register("postal_code", {
@@ -59,6 +78,7 @@ const Create = () => {
 			/>
 
 			<Textfield
+				isLoading={isLoading}
 				min={0}
 				type={"number"}
 				placeholder="Huisnummer"
@@ -79,14 +99,14 @@ const Create = () => {
 				disabled
 				placeholder="Straatnaam"
 				error={errors?.street_name?.message}
-				{...register("street_name")}
+				{...register("street_name", { required: true })}
 			/>
 
 			<Textfield
 				disabled
 				placeholder="Stad"
 				error={errors?.city?.message}
-				{...register("city")}
+				{...register("city", { required: true })}
 			/>
 
 			<Textfield
@@ -104,7 +124,9 @@ const Create = () => {
 				})}
 			/>
 
-			<button type="submit">Opslaan</button>
+			<button disabled={isMutating} type="submit">
+				Opslaan
+			</button>
 		</Form>
 	);
 };
