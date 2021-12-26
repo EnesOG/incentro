@@ -1,7 +1,4 @@
-import { DetailedHTMLProps, InputHTMLAttributes } from "react";
+import { InputElementType } from "../../App/types";
 
 export interface InputProps
-	extends Omit<
-		DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
-		"ref"
-	> {}
+	extends InputElementType {}

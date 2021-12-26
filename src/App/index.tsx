@@ -1,11 +1,11 @@
-import Textfield from "../components/Textfield/Textfield";
+import CreateForm from "../forms/CreateForm";
 import { GlobalStyle } from "./styles/Global";
 
 const App = () => {
 	return (
 		<div>
 			<GlobalStyle />
-			<Textfield />
+			<CreateForm />
 		</div>
 	);
 };
