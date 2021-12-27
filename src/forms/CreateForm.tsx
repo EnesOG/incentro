@@ -15,13 +15,21 @@ const Create = ({ onCreate, isMutating = false }: CreateProps) => {
 	const {
 		register,
 		handleSubmit,
-		control,
+		getValues,
+		trigger,
+		reset,
 		setValue,
 		formState: { errors },
 	} = useForm<Incentronaut>({ reValidateMode: "onChange", mode: "onChange" });
-	const { data, isLoading } = useAddressValidatorHook({ control, errors });
+	const { data, isLoading } = useAddressValidatorHook({
+		getValues,
+		errors,
+	});
 
-	const onSubmit: SubmitHandler<Incentronaut> = (data) => onCreate(data);
+	const onSubmit: SubmitHandler<Incentronaut> = (data) => {
+		reset();
+		return onCreate(data);
+	};
 
 	useEffect(() => {
 		const properties = data?.feature?.properties;
@@ -62,6 +70,7 @@ const Create = ({ onCreate, isMutating = false }: CreateProps) => {
 			/>
 
 			<Textfield
+				onInput={() => trigger("postal_code")}
 				isLoading={isLoading}
 				placeholder="Postcode"
 				error={errors?.postal_code?.message}
@@ -78,6 +87,7 @@ const Create = ({ onCreate, isMutating = false }: CreateProps) => {
 			/>
 
 			<Textfield
+				onInput={() => trigger("house_number")}
 				isLoading={isLoading}
 				min={0}
 				type={"number"}

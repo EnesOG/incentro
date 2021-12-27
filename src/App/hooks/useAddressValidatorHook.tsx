@@ -1,29 +1,20 @@
 import { useEffect } from "react";
-import { Control, FieldErrors } from "react-hook-form";
+import { FieldErrors, UseFormGetValues } from "react-hook-form";
+import { Incentronaut } from "../types";
 import useAddressHook from "./useAddressHook";
-import useDebouncedWatch from "./useDebouncedWatch";
+import useDebounce from "./useDebounce";
 
-interface Props<T = any> {
-	control: Control<T, object>;
-	errors: FieldErrors<T>;
+interface Props {
+	errors: FieldErrors<Incentronaut>;
+	getValues: UseFormGetValues<Incentronaut>;
 }
 
 function useAddressValidatorHook({
-	control,
 	errors: { postal_code, house_number },
+	getValues,
 }: Props) {
-	const postalCode = useDebouncedWatch<string>({
-		control,
-		name: "postal_code",
-		exact: true,
-	});
-
-	const houseNumber = useDebouncedWatch<number>({
-		control,
-		name: "house_number",
-		exact: true,
-	});
-
+	const postalCode = getValues("postal_code");
+	const houseNumber = useDebounce(getValues("house_number"), 250);
 	const { refetch, ...query } = useAddressHook({ postalCode, houseNumber });
 
 	useEffect(() => {
@@ -31,8 +22,7 @@ function useAddressValidatorHook({
 			postalCode &&
 			houseNumber &&
 			postal_code === undefined &&
-			house_number === undefined &&
-			postalCode
+			house_number === undefined
 		) {
 			refetch();
 		}
